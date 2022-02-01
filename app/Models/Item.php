@@ -11,4 +11,14 @@ class Item extends Model
 
     protected $guarded = ['id'];
 
+    public static function boot() 
+    {
+        parent::boot();
+        static::created(function(Item $model) {
+            $model->update([
+                $model->order = $model->id
+            ]);
+        });
+    }
+
 }

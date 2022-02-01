@@ -14,7 +14,7 @@ class ItemsController extends Controller
      */
     public function index()
     {
-        return Item::all();
+        return Item::orderBy('order')->get();
     }
 
     /**
@@ -25,7 +25,21 @@ class ItemsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required|string|max:255|unique:items'
+        ]);
+        $item = Item::create($data);
+        return response()->json($item, 201);
+    }
+
+    public function sort_items(Request $request) 
+    {
+        foreach($request->items as $requestItem) {
+            $item = Item::find($requestItem['id']);
+            $item->order = (int) $requestItem['order'] + 1;
+            $item->save();
+        }
+        return response()->json('Items updated');
     }
 
     /**
@@ -48,7 +62,19 @@ class ItemsController extends Controller
      */
     public function update(Request $request, Item $item)
     {
-        //
+        $data = $request->validate([
+            'title' => 'required|string|max:255|unique:items'
+        ]);
+        $item->update($data);
+        return response()->json($item, 200);
+    }
+
+    public function mark_complete(Item $item) 
+    {
+        $item->update([
+            'completed_at' => now()
+        ]);
+        return response()->json($item, 200);
     }
 
     /**
